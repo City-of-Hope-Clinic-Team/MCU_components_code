@@ -9,19 +9,19 @@
 
 void spiWrite(uint8_t address, uint8_t value) {
   uint8_t hi, lo;
-  digitalWrite(GPIOB, 6, 0); // pulse chip select
+  digitalWrite(GPIOB, 5, 0); // pulse chip select
   hi = spiSendReceive(address);
   lo = spiSendReceive(value); 
-  digitalWrite(GPIOB, 6, 1); // release chip select
+  digitalWrite(GPIOB, 5, 1); // release chip select
 	// discard returned values on a write transaction
 }
 
 uint8_t spiRead(uint8_t address) {
   uint8_t hi, lo;
-  digitalWrite(GPIOB, 6, 0); // pulse chip select
+  digitalWrite(GPIOB, 5, 0); // pulse chip select
   hi = spiSendReceive(address | 1 << 7); // set msb for reads
   lo = spiSendReceive(0x00);             // send dummy payload 
-  digitalWrite(GPIOB, 6, 1); // release chip select
+  digitalWrite(GPIOB, 5, 1); // release chip select
   return lo;
 }
 
@@ -43,37 +43,21 @@ int main(void) {
 
 	//setup clocks and hardware
 	spiInit(15, 0, 0); // Initialize SPI pins and clocks
-  pinMode(GPIOB, 6, GPIO_OUTPUT); 
-	digitalWrite(GPIOB, 6, 1); // Manually control LIS3DH Chip Select
+  digitalWrite(GPIOB, 3, 1); // set CSN high
+	digitalWrite(GPIOB, 5, 0); // Manually control CE
 
-  // Check WHO_AM_I register. should return 0x33 = 51 decimal
-	// Then do something with debug value to prevent compiler from
-	// optimizing it away.
-	debug = spiRead(0x0F);
-	if (debug == 51) digitalWrite(GPIOA, 2, 1); 
+  spiWrite(0x00, 0); // CONFIG
+  spiWrite(0x01, 0); // EN_AA, no Auto ACK
+  spiWrite(0x02, 0); // not enabling any data pipe
+  spiWrite(0x03, 0x03); // 5 bytes for RX/TX address
+  spiWrite(0x04, 0); // no retransmission
+  spiWrite(0x05, 0); // RF_CH
+  spiWrite(0x06, 0x0E); // RF_SETUP, power = 0db, data rate = 2Mbps
 
-  // Setup the LIS3DH for use
-	spiWrite(0x20, 0x77); // highest conversion rate, all axis on
-	spiWrite(0x23, 0x88); // block update, and high resolution
+  digitalWrite(GPIOB, 5, 1); // Manually control CE
 
-  pinMode(GPIOA, 0, GPIO_OUTPUT);
-  pinMode(GPIOA, 1, GPIO_OUTPUT);
 
   while(1) {
-    // Collect the X and Y values from the LIS3DH
-    x = spiRead(0x28) | (spiRead(0x29) << 8);
-    y = spiRead(0x2A) | (spiRead(0x2B) << 8);
 
-    if (y > 0) {
-      digitalWrite(GPIOA, 0, 1);
-      ms_delay(100);
-    }
-    if (y < 0) {
-      digitalWrite(GPIOA, 1, 1);
-      ms_delay(100);
-    }
-    digitalWrite(GPIOA, 0, 0);
-    digitalWrite(GPIOA, 1, 0);
-    ms_delay(100);
   }
 }

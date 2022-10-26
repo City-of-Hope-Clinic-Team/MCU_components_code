@@ -20,10 +20,11 @@ void spiInit(uint32_t br, uint32_t cpol, uint32_t cpha) {
     RCC->APB2ENR |= (1 << 12); // Turn on SPI1 clock domain (SPI1EN bit in APB2ENR)
 
     // Initially assigning SPI pins
-    pinMode(GPIOA, 5, GPIO_ALT); // PA5, Arduino D13, SPI1_SCK
-    pinMode(GPIOA, 6, GPIO_ALT); // PA6, Arduino D12, SPI1_MISO
-    pinMode(GPIOA, 7, GPIO_ALT); // PA7, Arduino D11, SPI1_MOSI
-    pinMode(GPIOB, 6, GPIO_OUTPUT); // PB6, Arduino D10, Manual CS
+    pinMode(GPIOA, 8, GPIO_ALT); // SPI1_SCK
+    pinMode(GPIOB, 10, GPIO_ALT); // SPI1_MISO
+    pinMode(GPIOB, 4, GPIO_ALT); // SPI1_MOSI
+    pinMode(GPIOB, 5, GPIO_OUTPUT); // Manual CS
+    pinMode(GPIOB, 3, GPIO_OUTPUT); // CSN
 
     // Set output speed type to high for SCK
     GPIOA->OSPEEDR |= (0b11 << 2*5);
