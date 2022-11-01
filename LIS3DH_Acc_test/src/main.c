@@ -2,6 +2,10 @@
 #include "STM32F401RE_GPIO.h"
 #include "STM32F401RE_SPI.h"
 #include "STM32F401RE_RCC.h"
+#include "STM32F401RE_FLASH.h"
+#include "STM32F401RE_USART.h"
+
+#define USART_ID USART2_ID
 
 /////////////////////////////////////////////////////////////////////
 // SPI Functions
@@ -41,6 +45,14 @@ int main(void) {
   uint8_t debug;
 	int16_t x,y;
 
+  // Configure flash and clock
+  configureFlash();
+  configureClock(); // Set system clock to 84 MHz
+
+  // Initialize USART
+  // TODO: Write this function in USART.c
+  USART_TypeDef * USART = initUSART(USART_ID);
+
 	//setup clocks and hardware
 	spiInit(15, 0, 0); // Initialize SPI pins and clocks
   pinMode(GPIOB, 6, GPIO_OUTPUT); 
@@ -63,8 +75,18 @@ int main(void) {
     // Collect the X and Y values from the LIS3DH
     x = spiRead(0x28) | (spiRead(0x29) << 8);
     y = spiRead(0x2A) | (spiRead(0x2B) << 8);
+    uint8_t x_msg[64];
+    uint8_t y_msg[64];
+    itoa(x, x_msg, 10);
+    itoa(y, y_msg, 10);
 
-    if (y > 0) {
+    int i = 0;
+    do {
+      sendChar(USART, x_msg[i]);
+      i += 1;
+    } while (x_msg[i] != 0);
+
+    if (x > 0) {
       digitalWrite(GPIOA, 0, 1);
       ms_delay(100);
     }
@@ -74,6 +96,7 @@ int main(void) {
     }
     digitalWrite(GPIOA, 0, 0);
     digitalWrite(GPIOA, 1, 0);
-    ms_delay(100);
+
+    ms_delay(2000);
   }
 }
