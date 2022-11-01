@@ -26,6 +26,10 @@ void configurePLL() {
 }
 
 void configureClock(){
+        // Configure prescalers
+    RCC->CFGR.PPRE2 = 0b000;
+    RCC->CFGR.PPRE1 = 0b100;
+
     // Turn on and bypass for HSE from ST-LINK
     RCC->CR.HSEBYP = 1;
     RCC->CR.HSEON = 1;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "STM32F401RE_GPIO.h"
 #include "STM32F401RE_SPI.h"
 #include "STM32F401RE_RCC.h"
@@ -43,7 +44,7 @@ void ms_delay(int ms) {
 
 int main(void) {
   uint8_t debug;
-	int16_t x,y;
+	int16_t x,y,z;
 
   // Configure flash and clock
   configureFlash();
@@ -75,10 +76,11 @@ int main(void) {
     // Collect the X and Y values from the LIS3DH
     x = spiRead(0x28) | (spiRead(0x29) << 8);
     y = spiRead(0x2A) | (spiRead(0x2B) << 8);
-    uint8_t x_msg[64];
-    uint8_t y_msg[64];
-    itoa(x, x_msg, 10);
-    itoa(y, y_msg, 10);
+    z = spiRead(0x2C) | (spiRead(0x2D) << 8);
+    char x_msg[64];
+    char y_msg[64];
+    sprintf(x_msg, "x: %i\n", x);
+    sprintf(y_msg, "%i\n", y);
 
     int i = 0;
     do {
@@ -86,16 +88,16 @@ int main(void) {
       i += 1;
     } while (x_msg[i] != 0);
 
-    if (x > 0) {
+    if (x > 0 | y > 0 | z > 0) {
       digitalWrite(GPIOA, 0, 1);
       ms_delay(100);
     }
-    if (y < 0) {
-      digitalWrite(GPIOA, 1, 1);
-      ms_delay(100);
-    }
-    digitalWrite(GPIOA, 0, 0);
-    digitalWrite(GPIOA, 1, 0);
+    // if (y < 0) {
+    //   digitalWrite(GPIOA, 1, 1);
+    //   ms_delay(100);
+    // }
+    // digitalWrite(GPIOA, 0, 0);
+    // digitalWrite(GPIOA, 1, 0);
 
     ms_delay(2000);
   }
