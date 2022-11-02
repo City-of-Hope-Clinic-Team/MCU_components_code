@@ -79,14 +79,28 @@ int main(void) {
     z = spiRead(0x2C) | (spiRead(0x2D) << 8);
     char x_msg[64];
     char y_msg[64];
-    sprintf(x_msg, "x: %i\n", x);
-    sprintf(y_msg, "%i\n", y);
+    char z_msg[64];
+    sprintf(x_msg, "x: %i, ", x);
+    sprintf(y_msg, "y: %i, ", y);
+    sprintf(z_msg, "z: %i\n", z);
 
     int i = 0;
     do {
       sendChar(USART, x_msg[i]);
       i += 1;
     } while (x_msg[i] != 0);
+
+    i = 0;
+    do {
+      sendChar(USART, y_msg[i]);
+      i += 1;
+    } while (y_msg[i] != 0);
+
+    i = 0;
+    do {
+      sendChar(USART, z_msg[i]);
+      i += 1;
+    } while (z_msg[i] != 0);
 
     if (x > 0 | y > 0 | z > 0) {
       digitalWrite(GPIOA, 0, 1);
