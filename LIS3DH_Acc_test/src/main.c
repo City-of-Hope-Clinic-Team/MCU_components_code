@@ -81,6 +81,9 @@ int main(void) {
     z = spiRead(0x2C) | (spiRead(0x2D) << 8);
     // 8 because range is 4g -> 2-4 bits in CTRL4 are 01
     // we divide by 16000 to convert to gs
+    // double x1 = 8 * ((float)x / 16000);
+    // double y1 = 8 * ((float)y / 16000);
+    // double z1 = 8 * ((float)z / 16000);
     x = 8 * ((float)x / 16000);
     y = 8 * ((float)y / 16000);
     z = 8 * ((float)z / 16000);
