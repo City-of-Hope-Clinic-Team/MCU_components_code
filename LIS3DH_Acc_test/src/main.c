@@ -66,7 +66,9 @@ int main(void) {
 	if (debug == 51) digitalWrite(GPIOA, 2, 1); 
 
   // Setup the LIS3DH for use
+  // CTRL_REG1 (20h) = 01110111
 	spiWrite(0x20, 0x77); // highest conversion rate, all axis on
+  // CTRL_REG4 (23h) = 10001000
 	spiWrite(0x23, 0x88); // block update, and high resolution
 
   pinMode(GPIOA, 0, GPIO_OUTPUT);
@@ -77,12 +79,17 @@ int main(void) {
     x = spiRead(0x28) | (spiRead(0x29) << 8);
     y = spiRead(0x2A) | (spiRead(0x2B) << 8);
     z = spiRead(0x2C) | (spiRead(0x2D) << 8);
+    // 8 because range is 4g -> 2-4 bits in CTRL4 are 01
+    // we divide by 16000 to convert to gs
+    x = 8 * ((float)x / 16000);
+    y = 8 * ((float)y / 16000);
+    z = 8 * ((float)z / 16000);
     char x_msg[64];
     char y_msg[64];
     char z_msg[64];
-    sprintf(x_msg, "x: %i, ", x);
-    sprintf(y_msg, "y: %i, ", y);
-    sprintf(z_msg, "z: %i\n", z);
+    sprintf(x_msg, "%i, ", x);
+    sprintf(y_msg, "%i, ", y);
+    sprintf(z_msg, "%i\n", z);
 
     int i = 0;
     do {
@@ -102,17 +109,11 @@ int main(void) {
       i += 1;
     } while (z_msg[i] != 0);
 
-    if (x > 0 | y > 0 | z > 0) {
-      digitalWrite(GPIOA, 0, 1);
-      ms_delay(100);
-    }
-    // if (y < 0) {
-    //   digitalWrite(GPIOA, 1, 1);
+    // if (x > 0 | y > 0 | z > 0) {
+    //   digitalWrite(GPIOA, 0, 1);
     //   ms_delay(100);
     // }
-    // digitalWrite(GPIOA, 0, 0);
-    // digitalWrite(GPIOA, 1, 0);
 
-    ms_delay(2000);
+    ms_delay(5000);
   }
 }
