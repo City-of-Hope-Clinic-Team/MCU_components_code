@@ -68,7 +68,7 @@ int main(void) {
   // Setup the LIS3DH for use
   // CTRL_REG1 (20h) = 01110111
 	spiWrite(0x20, 0x77); // highest conversion rate, all axis on
-  // CTRL_REG4 (23h) = 10001000
+  // CTRL_REG4 (23h) = 10001000 (0x88), low res 10000000 (0x80)
 	spiWrite(0x23, 0x88); // block update, and high resolution
 
   pinMode(GPIOA, 0, GPIO_OUTPUT);
@@ -81,12 +81,11 @@ int main(void) {
     z = spiRead(0x2C) | (spiRead(0x2D) << 8);
     // 8 because range is 4g -> 2-4 bits in CTRL4 are 01
     // we divide by 16000 to convert to gs
-    // double x1 = 8 * ((float)x / 16000);
-    // double y1 = 8 * ((float)y / 16000);
-    // double z1 = 8 * ((float)z / 16000);
-    x = 8 * ((float)x / 16000);
-    y = 8 * ((float)y / 16000);
-    z = 8 * ((float)z / 16000);
+
+    // x = 4 * ((float)x / 16);
+    // y = 4 * ((float)y / 16);
+    // z = 4 * ((float)z / 16);
+
     char x_msg[64];
     char y_msg[64];
     char z_msg[64];
