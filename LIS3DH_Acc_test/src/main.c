@@ -55,6 +55,7 @@ int main(void) {
   USART_TypeDef * USART = initUSART(USART_ID);
 
 	//setup clocks and hardware
+  
 	spiInit(15, 0, 0); // Initialize SPI pins and clocks
   pinMode(GPIOB, 6, GPIO_OUTPUT); 
 	digitalWrite(GPIOB, 6, 1); // Manually control LIS3DH Chip Select
@@ -73,6 +74,7 @@ int main(void) {
 
   pinMode(GPIOA, 0, GPIO_OUTPUT);
   pinMode(GPIOA, 1, GPIO_OUTPUT);
+  
 
   while(1) {
     // Collect the X and Y values from the LIS3DH
